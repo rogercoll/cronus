@@ -1,4 +1,6 @@
 use std::net::TcpListener;
+use std::net::TcpStream;
+use std::fs::File;
 use std::error::Error;
 use std::io::prelude::*;
 
@@ -35,13 +37,34 @@ impl Server {
         for stream in self.listener.incoming() {
             println!("Connection received");
             let mut stream = stream.unwrap();
-            let response = filename;
-            stream.write(response.as_bytes()).unwrap();
-            stream.flush().unwrap();
+            let mut buffer = [0; 1024];
+            stream.read(&mut buffer).unwrap();
+            let reqPass = String::from_utf8_lossy(&buffer[..]);
+            let corrPass = &self.password;
+            match reqPass {
+                corrPass => {
+                    println!("Correct password"); 
+                    let response = filename;
+                    stream.write(response.as_bytes()).unwrap();
+                    self.sendFile(stream);
+                },
+                _ => println!("Wrong password"),
+            }
         };
         Ok(())
     }
+    fn sendFile(&self, mut stream: TcpStream) -> Result<(), Box<dyn Error>> {
+        let mut file = File::open("./hello.txt").unwrap();
+        let mut bytes_count: i32 = 0;
+        let mut buffer = Vec::new();
+        file.read_to_end(&mut buffer).unwrap();
+        let size = buffer.len();
+        println!("{}", size);
+        println!("{:?}", &buffer);
+        stream.write(&buffer).unwrap();
+        stream.flush().unwrap();
+        Ok(())
+    }
 }
-
 
 

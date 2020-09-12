@@ -11,7 +11,7 @@ fn main() {
         process::exit(1);
     });
     println!("{}", config.filename);
-    let server = Server::new("1234", "pass123", "Hellow fool").unwrap_or_else(|err| {
+    let server = Server::new("hello.txt", "pass123", "Hellow fool").unwrap_or_else(|err| {
         eprintln!("Problem parsing arguments: {}", err);
         process::exit(1);
     });
