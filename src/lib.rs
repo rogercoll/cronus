@@ -44,8 +44,6 @@ impl Server {
             match reqPass {
                 corrPass => {
                     println!("Correct password"); 
-                    let response = filename;
-                    stream.write(response.as_bytes()).unwrap();
                     self.sendFile(stream);
                 },
                 _ => println!("Wrong password"),
@@ -58,9 +56,11 @@ impl Server {
         let mut bytes_count: i32 = 0;
         let mut buffer = Vec::new();
         file.read_to_end(&mut buffer).unwrap();
-        let size = buffer.len();
+        let size: u32 = buffer.len() as u32;
+        stream.write(&size.to_le_bytes()).unwrap();
         println!("{}", size);
         println!("{:?}", &buffer);
+        //buffer is of bytes so we don't need the as_bytes() function
         stream.write(&buffer).unwrap();
         stream.flush().unwrap();
         Ok(())
